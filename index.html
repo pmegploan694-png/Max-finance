@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Financial Services</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; margin: 0; padding: 0; text-align: center; color: #333; overflow-x: hidden; }
+        
+        .sidenav { height: 100%; width: 0; position: fixed; z-index: 10000; top: 0; right: 0; background-color: #003366; overflow-x: hidden; transition: 0.5s; padding-top: 60px; text-align: left; }
+        .sidenav a { padding: 15px 30px; text-decoration: none; font-size: 20px; color: white; display: block; border-bottom: 1px solid #004aad; }
+        .sidenav .closebtn { position: absolute; top: 10px; right: 25px; font-size: 40px; color: white; cursor: pointer; }
+
+        .header { background: white; padding: 10px 20px; border-bottom: 5px solid #f39c12; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 5000; height: 70px; }
+        .logo-box h1 { color: #003366; margin: 0; font-size: 32px; font-weight: 900; line-height: 1; }
+        .logo-box p { color: #f39c12; margin: 0; font-weight: bold; font-size: 12px; text-transform: uppercase; }
+        .menu-btn { font-size: 30px; background: #003366; color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; z-index: 6000; }
+
+        .vision-box { background: #004aad; color: white; margin: 15px; padding: 25px; border-radius: 20px; }
+        .img-container { margin: 15px; border-radius: 20px; overflow: hidden; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        .bank-img { width: 100%; height: auto; display: block; }
+
+        .card { background: white; margin: 15px; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #003366; }
+        input { width: 92%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 12px; font-size: 16px; outline: none; }
+        .btn-blue { width: 100%; background: #003366; color: white; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
+        .btn-orange { width: 100%; background: #f39c12; color: #003366; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
+
+        .status-table { margin-top: 20px; display: none; background: #fff; border-radius: 20px; overflow: hidden; border: 2px solid #003366; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .status-head { background: #003366; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 20px; }
+        .status-body { padding: 20px; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 17px; }
+        
+        .box-container { display: flex; gap: 10px; margin: 20px 0; }
+        .mini-box { flex: 1; padding: 15px; border-radius: 15px; text-align: center; font-weight: 900; color: white; }
+        .emi-box { background: #004aad; border-bottom: 4px solid #002d66; }
+        .fees-box { background: #e67e22; border-bottom: 4px solid #b35f10; }
+
+        .approved-bar { background: #27ae60; color: white; padding: 15px; text-align: center; font-weight: 900; font-size: 22px; border-radius: 10px; margin-top: 10px; }
+        .photo-frame { width: 95%; max-width: 320px; margin: 10px auto; border: 4px solid #003366; border-radius: 15px; overflow: hidden; }
+        .photo-frame img { width: 100%; display: block; }
+
+        .services-box { background: #fffdf0; margin: 15px; padding: 20px; border-radius: 20px; border-left: 10px solid #f39c12; text-align: left; }
+        .services-box li { padding: 8px 0; font-weight: bold; font-size: 16px; list-style: none; display: flex; align-items: center; }
+        .services-box li::before { content: '✔'; color: #28a745; margin-right: 12px; font-weight: 900; }
+
+        .new-banner { margin: 10px 15px; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 2px solid #ddd; }
+        .new-banner img { width: 100%; display: block; }
+
+        .hindi-matter { background: white; margin: 15px; padding: 20px; border-radius: 20px; border: 2px solid #004aad; text-align: left; line-height: 1.7; color: #000; }
+        .subsidy-box { background: #ffeb3b; padding: 15px; border-radius: 12px; font-weight: bold; text-align: center; margin: 15px 0; border: 2px dashed #000; }
+
+        .partners-box { background: #fff; margin: 15px; padding: 20px; border-radius: 20px; border: 2px solid #003366; }
+        .partner-name { font-weight: 900; font-size: 16px; color: #003366; display: block; margin: 10px 0; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+
+        .footer { background: black; color: white; padding: 45px 25px; margin-top: 30px; }
+        .wp-btn { position: fixed; bottom: 25px; right: 20px; background: #25d366; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 9000; font-size: 35px; border: 2px solid white; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+
+    <div id="mySidenav" class="sidenav">
+        <span class="closebtn" onclick="closeNav()">&times;</span>
+        <a href="javascript:void(0)" onclick="closeNav()">🏠 होम</a>
+        <a href="#applySection" onclick="closeNav()">📝 लोन अप्लाई करें</a>
+        <a href="#statusSection" onclick="closeNav()">🔍 स्टेटस चेक करें</a>
+        <a href="https://wa.me/917404515575">📞 हमसे संपर्क करें</a>
+    </div>
+
+    <div class="header">
+        <div class="logo-box"><h1>MAX</h1><p>FINANCIAL SERVICES</p></div>
+        <div class="menu-btn" onclick="openNav()">☰</div>
+    </div>
+
+    <div class="vision-box">
+        <h2>MAX Vision</h2>
+        <p>"To be an integrated financial provider par excellence."</p>
+    </div>
+
+    <div class="img-container">
+        <img src="https://i.ibb.co/XZTmf5wC/Screenshot-20240908-211047-Samsung-Internet.jpg" class="bank-img">
+    </div>
+
+    <div class="card" id="applySection">
+        <h3 style="color: #003366;">📝 Apply Online</h3>
+        <input type="text" id="n" placeholder="आपका पूरा नाम">
+        <input type="number" id="m" placeholder="मोबाइल नंबर (10 अंक)">
+        <input type="number" id="a" placeholder="लोन राशि (₹)">
+        <button class="btn-blue" onclick="saveData()">SUBMIT APPLICATION</button>
+    </div>
+
+    <div class="card" id="statusSection">
+        <h3 style="color:#f39c12">🔍 Track Status</h3>
+        <input type="number" id="sm" placeholder="रजिस्टर्ड मोबाइल नंबर डालें">
+        <button class="btn-orange" onclick="checkStatus()">CHECK STATUS</button>
+        <div id="res" class="status-table"></div>
+    </div>
+
+    <div class="services-box">
+        <h3>🏦 हमारे मुख्य लोन विकल्प:</h3>
+        <li>Personal Loan (Approval in 24h)</li>
+        <li>Marksheet Loan (All Boards)</li>
+        <li>Property Loan & Business Loan</li>
+        <li>ब्याज दर मात्र 4% सालाना</li>
+    </div>
+
+    <div class="new-banner">
+        <img src="https://i.ibb.co/7dHQ1XsX/Screenshot-20260123-193029-Samsung-Internet.jpg">
+    </div>
+    
+    </div>
+    <div class="new-banner">
+        <img src="https://i.ibb.co/mV9B1NLs/Screenshot-20260123-193632-Samsung-Internet.jpg">
+    </div>
+
+    <div class="hindi-matter">
+        <p>📌 लोन लेने के लिए आज ही <b>Apply</b> करें। दस्तावेज: <b>आधार कार्ड और पैन कार्ड</b>।</p>
+        <p>⚡ मात्र <b>24 घंटे</b> में लोन अप्रूवल पाएं और अपनी वित्तीय जरूरतों को पूरा करें।</p>
+        <p>📈 हमारी कंपनी की ब्याज दर मात्र <b>4% सालाना</b> है।</p>
+        <div class="subsidy-box">💰 समय पर किस्तें भरने पर ब्याज पर 50% की सब्सिडी भी पाएं!</div>
+    </div>
+
+    <div class="partners-box">
+        <h3>OUR CORPORATE PARTNERS</h3>
+        <span class="partner-name">SANDRINE LOGISTICS</span>
+        <span class="partner-name">MURRAYFIELD SCHOOL OF MARKETING</span>
+        <span class="partner-name">SCHUESTER DIGITAL MEDIA GROUP</span>
+        <span class="partner-name">BLUE SAMURAI PRODUCTIONS</span>
+        <span class="partner-name">BERAO SOLUTIONS, INC.</span>
+        <span class="partner-name">INDIAN BANK</span>
+    </div>
+
+    <div class="footer">
+        <p>B/67, 1st Floor, High Street Complex, Zirakpur, Punjab</p>
+        <p style="font-size: 20px; color: #f39c12; font-weight: bold;">📞 +91 7404515575</p>
+    </div>
+
+    <a href="https://wa.me/917404515575" class="wp-btn">📞</a>
+
+    <script>
+        function openNav() { document.getElementById("mySidenav").style.width = "280px"; }
+        function closeNav() { document.getElementById("mySidenav").style.width = "0"; }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAchRmUMIKGoH7pTB28okuf85st1zlyCbM",
+            authDomain: "maxfinance-d93fc.firebaseapp.com",
+            databaseURL: "https://maxfinance-d93fc-default-rtdb.firebaseio.com",
+            projectId: "maxfinance-d93fc",
+            storageBucket: "maxfinance-d93fc.firebasestorage.app",
+            messagingSenderId: "629343943980",
+            appId: "1:629343943980:web:dfb55a6cc02bc0a0ce4089"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function saveData() {
+            const name = document.getElementById('n').value;
+            const mobile = document.getElementById('m').value;
+            const amount = document.getElementById('a').value;
+            if(!name || mobile.length < 10) { alert("कृपया सही विवरण भरें!"); return; }
+            db.ref('loans/' + mobile).set({ name, amount, emi: "0", fees: "0", status: "PENDING", photo: "" })
+            .then(() => { alert("सफलतापूर्वक जमा हो गया!"); location.reload(); });
+        }
+
+        function checkStatus() {
+            const mobile = document.getElementById('sm').value;
+            const out = document.getElementById('res');
+            if(!mobile) { alert("Please enter mobile number"); return; }
+            db.ref('loans/' + mobile).once('value').then((snap) => {
+                out.style.display = "block";
+                if(snap.exists()){
+                    const d = snap.val();
+                    let photoHtml = (d.photo && d.photo.includes("http")) ? `<div class="photo-frame"><img src="${d.photo}"></div>` : '';
+                    out.innerHTML = `<div class="status-head">CLIENT DASHBOARD</div>${photoHtml}<div class="status-body"><div class="info-row"><span>कस्टमर नाम:</span> <b>${d.name}</b></div><div class="info-row"><span>लोन अमाउंट:</span> <b>₹${d.amount}</b></div><div class="box-container"><div class="mini-box emi-box">EMI<br>₹${d.emi}</div><div class="mini-box fees-box">FEES<br>₹${d.fees}</div></div><div class="approved-bar">${d.status}</div></div>`;
+                } else { out.innerHTML = "<p style='padding:20px; color:red; font-weight:bold;'>रिकॉर्ड नहीं मिला।</p>"; }
+            });
+        }
+    </script>
+</body>
+</html>
